@@ -8,7 +8,7 @@ using namespace std;
 
 void Solution01_A() {
     std::ifstream myfile; 
-    myfile.open("input.txt");
+    myfile.open("01/input.txt");
 
     string s = "";
     int result = 0;
@@ -99,6 +99,6 @@ void Solution01_B() {
 
 int main() {
     
-    Solution01_B();
+    Solution01_A();
     return 0;
 }
