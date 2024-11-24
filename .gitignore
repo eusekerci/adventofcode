@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+*.iml
+.idea
+.vscode
+2023/01/build
+2023/01/01.dSYM
+2023/01/01
