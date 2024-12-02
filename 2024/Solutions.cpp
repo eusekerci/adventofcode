@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -10,95 +11,145 @@ void Solution01_A() {
     std::ifstream myfile; 
     myfile.open("01/input.txt");
 
-    string s = "";
-    int result = 0;
+    int64_t left = 0;
+    int64_t right = 0;
+    int64_t result = 0;
+    vector<int64_t> lefts;
+    vector<int64_t> rights;
     while(!myfile.eof()) {
-        getline(myfile, s);
-        bool isFirstDigit = true;
-        for(int i=0; i<s.length(); i++) {
-            if (s[i] >= 48 && s[i] <= 57) {
-                result += (s[i]-48) * 10;
-                isFirstDigit = false;
-                break;
-            }
-        }
-        for(int i=s.length()-1; i>=0; i--) {
-            if (s[i] >= 48 && s[i] <= 57) {
-                result += (s[i]-48) * (isFirstDigit ? 10 : 1);
-                break;
-            }
-        }
+        myfile >> left >> right;
+        lefts.push_back(left);
+        rights.push_back(right);
     }
+
+    sort(lefts.begin(), lefts.end());
+    sort(rights.begin(), rights.end());
+
+    for (int64_t i=0; i<lefts.size(); i++) {
+            result += std::abs(lefts[i] - rights[i]);
+    }
+
     cout << result << endl;
 }
 
 void Solution01_B() {
-    cout << "Day 01 B" << endl;
+    std::ifstream myfile;
+    myfile.open("01/input.txt");
 
-
-    vector<string> numbers;
-    numbers.push_back("zero");
-    numbers.push_back("one");
-    numbers.push_back("two");
-    numbers.push_back("three");
-    numbers.push_back("four");
-    numbers.push_back("five");
-    numbers.push_back("six");
-    numbers.push_back("seven");
-    numbers.push_back("eight");
-    numbers.push_back("nine");
-
-    std::ifstream myfile; 
-    myfile.open("input.txt");
-
-    string s = "";
-    int result = 0;
-
+    int64_t left = 0;
+    int64_t right = 0;
+    int64_t result = 0;
+    vector<int64_t> lefts;
+    vector<int64_t> rights;
+    int64_t greatestRightNumber = 0;
     while(!myfile.eof()) {
-        getline(myfile, s);
-        for (int i=0; i<numbers.size(); i++) {
-            int index = 0;
-            vector< vector< int > > map;
-            while (index != string::npos) {
-                index = s.find(numbers[i]);
-                if (index == string::npos) {
-                    break;
-                } else {
-                    map[i].emplace_back(index);
-                }
-            }
-            for(int j=0; j<s.length(); j++) {
-                if (s[j] >= 48 && s[j] <= 57) {
-                    map[s[j]-48].emplace_back(j);
-                    break;
-                }
-            }
-            int minIndex = INT_MAX;
-            int minValue = 0;
-            int maxIndex = INT_MIN;
-            int maxValue = 0;
-            for (int j=0; j<map.size(); j++) {
-                for(int a : map[j]) {
-                    if (a < minIndex) {
-                        minIndex = a;
-                        minValue = j;
-                    }
-                    if (a > maxIndex) {
-                        maxIndex = a;
-                        maxValue = j;
-                    }
-                }
-            }
-            result += minValue * 10 + maxValue;
-            cout << result << endl;
-        }
-        cout << result << endl;
+        myfile >> left >> right;
+        lefts.push_back(left);
+        rights.push_back(right);
+        greatestRightNumber = std::max(greatestRightNumber, right);
     }
+
+    greatestRightNumber++;
+    vector<int64_t> rightOccurance(greatestRightNumber, 0);
+    for (int64_t i=0; i<rights.size(); i++) {
+        rightOccurance[rights[i]]++;
+    }
+
+    for (int64_t i=0; i<lefts.size(); i++) {
+        result += lefts[i] * rightOccurance[lefts[i]];
+    }
+
+    cout << result << endl;
+}
+
+int isSafeVector(vector<int> vec) {
+    bool isIncreasing = vec[0] < vec[1];
+    int brokenIndex = -1;
+    for (int j=0; j<vec.size()-1; j++) {
+        if (isIncreasing) {
+            if (vec[j] >= vec[j+1] || vec[j+1] - vec[j] > 3 || vec[j] - vec[j+1] == 0) {
+                brokenIndex = j;
+                break;
+            }
+        } else {
+            if (vec[j] <= vec[j+1]  || vec[j] - vec[j+1] > 3 || vec[j] - vec[j+1] == 0) {
+                brokenIndex = j;
+                break;
+            }
+        }
+    }
+    return brokenIndex;
+
+}
+
+void Solution02_A() {
+    std::ifstream myfile;
+    myfile.open("02/input.txt");
+
+    vector< vector<int> > matrix;
+    vector<int> row;
+    string line;
+
+    int64_t result = 0;
+
+    while (std::getline(myfile, line)) {
+        std::istringstream iss(line);
+        int number;
+        row.clear();
+        while (iss >> number) {
+            row.push_back(number);
+        }
+        matrix.push_back(row);
+    }
+    for (int i=0; i<matrix.size(); i++) {
+        int isSafe = isSafeVector(matrix[i]);
+        result += isSafe == -1 ? 1 : 0;
+    }
+
+    cout << result << endl;
+}
+
+void Solution02_B() {
+    std::ifstream myfile;
+    myfile.open("02/input.txt");
+
+    vector< vector<int> > matrix;
+    vector<int> row;
+    string line;
+
+    int64_t result = 0;
+
+    while (std::getline(myfile, line)) {
+        std::istringstream iss(line);
+        int number;
+        row.clear();
+        while (iss >> number) {
+            row.push_back(number);
+        }
+        matrix.push_back(row);
+    }
+    for (int i=0; i<matrix.size(); i++) {
+        int isSafe = isSafeVector(matrix[i]);
+        if (isSafe != -1) {
+            vector<int> planA = matrix[i];
+            vector<int> planB = matrix[i];
+            vector<int> planC = matrix[i];
+            planA.erase(planA.begin()+isSafe);
+            planB.erase(planB.begin()+(isSafe+1));
+            planC.erase(planC.begin());
+            if (isSafeVector(planA) == -1 || isSafeVector(planB) == -1 || isSafeVector(planC) == -1) {
+                cout << isSafe << endl;
+                isSafe = -1;
+            }
+        }
+        result += isSafe == -1 ? 1 : 0;
+    }
+
     cout << result << endl;
 }
 
 int main() {
     
-    Solution01_A();
+    Solution02_B();
     return 0;
 }
