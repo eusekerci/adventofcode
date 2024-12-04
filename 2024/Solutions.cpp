@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <regex>
+#include <string.h>
 
 using namespace std;
 
@@ -148,8 +150,220 @@ void Solution02_B() {
     cout << result << endl;
 }
 
+void Solution03_A() {
+    std::ifstream myfile;
+    myfile.open("03/input.txt");
+
+    string line;
+    int64_t result = 0;
+
+    std::getline(myfile, line);
+
+    std::regex pattern("mul\\(\\d+,\\d+\\)");
+
+    std::sregex_iterator currentMatch(line.begin(), line.end(), pattern);
+    std::sregex_iterator lastMatch;
+
+    while (currentMatch != lastMatch) {
+        std::smatch match = *currentMatch;
+        std::cout << "Match found: " << match.str() << std::endl;
+
+        string numbers = match.str();
+        numbers = numbers.substr(4, numbers.size()-5);
+
+        vector<std::string> parts;
+        stringstream ss(numbers);
+        string item;
+        while (std::getline(ss, item, ',')) {
+            parts.push_back(item);
+        }
+        cout << numbers << endl;
+        cout << parts[0] << " " << parts[1] << endl;
+
+        result += std::stoi(parts[0]) * std::stoi(parts[1]);
+
+        ++currentMatch;
+    }
+
+    cout << result << endl;
+}
+
+void Solution03_B() {
+    std::ifstream myfile;
+    myfile.open("03/input.txt");
+
+    string line;
+    int64_t result = 0;
+
+    std::getline(myfile, line);
+
+    std::regex pattern("mul\\(\\d+,\\d+\\)|do\\(\\)|don't\\(\\)");
+
+    std::sregex_iterator currentMatch(line.begin(), line.end(), pattern);
+    std::sregex_iterator lastMatch;
+
+    bool isEnabled = true;
+
+    while (currentMatch != lastMatch) {
+        std::smatch match = *currentMatch;
+        std::cout << "Match found: " << match.str() << std::endl;
+
+        string numbers = match.str();
+
+        if (numbers == "do()") {
+            isEnabled = true;
+        } else if (numbers == "don't()") {
+            isEnabled = false;
+        } else {
+            if (isEnabled) {
+                numbers = numbers.substr(4, numbers.size()-5);
+
+                vector<std::string> parts;
+                stringstream ss(numbers);
+                string item;
+                while (std::getline(ss, item, ',')) {
+                    parts.push_back(item);
+                }
+                cout << numbers << endl;
+                cout << parts[0] << " " << parts[1] << endl;
+
+                result += std::stoi(parts[0]) * std::stoi(parts[1]);
+            }
+        }
+
+        ++currentMatch;
+    }
+
+    cout << result << endl;
+}
+
+enum class Direction {
+    HORIZONTAL,
+    VERTICAL,
+    DIAGONALX,
+    DIAGONALY
+};
+
+bool isXMAS(vector<string>& matrix, int x, int y, Direction direction) {
+    if (direction == Direction::HORIZONTAL) {
+        if (x+3 >= matrix[y].size()) {
+            return false;
+        }
+        if (matrix[y][x] == 'X' && matrix[y][x+1] == 'M' && matrix[y][x+2] == 'A' && matrix[y][x+3] == 'S') {
+            return true;
+        }
+        if (matrix[y][x] == 'S' && matrix[y][x+1] == 'A' && matrix[y][x+2] == 'M' && matrix[y][x+3] == 'X') {
+            return true;
+        }
+    } else if (direction == Direction::VERTICAL) {
+        if (y+3 >= matrix.size()) {
+            return false;
+        }
+        if (matrix[y][x] == 'X' && matrix[y+1][x] == 'M' && matrix[y+2][x] == 'A' && matrix[y+3][x] == 'S') {
+            return true;
+        }
+        if (matrix[y][x] == 'S' && matrix[y+1][x] == 'A' && matrix[y+2][x] == 'M' && matrix[y+3][x] == 'X') {
+            return true;
+        }
+
+    } else if (direction == Direction::DIAGONALX) {
+        if (x+3 >= matrix[y].size() || y+3 >= matrix.size()) {
+            return false;
+        }
+        if (matrix[y][x] == 'X' && matrix[y+1][x+1] == 'M' && matrix[y+2][x+2] == 'A' && matrix[y+3][x+3] == 'S') {
+            return true;
+        }
+        if (matrix[y][x] == 'S' && matrix[y+1][x+1] == 'A' && matrix[y+2][x+2] == 'M' && matrix[y+3][x+3] == 'X') {
+            return true;
+        }
+    } else if (direction == Direction::DIAGONALY) {
+        if (x-3 < 0 || y+3 >= matrix.size()) {
+            return false;
+        }
+        if (matrix[y][x] == 'X' && matrix[y+1][x-1] == 'M' && matrix[y+2][x-2] == 'A' && matrix[y+3][x-3] == 'S') {
+            return true;
+        }
+        if (matrix[y][x] == 'S' && matrix[y+1][x-1] == 'A' && matrix[y+2][x-2] == 'M' && matrix[y+3][x-3] == 'X') {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isMASMAS(vector<string>& matrix, int x, int y) {
+    if (x-1 < 0 || x+1 >= matrix[y].size() || y-1 < 0 || y+1 >= matrix.size()) {
+        return false;
+    }
+    if ((matrix[y][x] == 'A' && matrix[y-1][x-1] == 'M' && matrix[y+1][x+1] == 'S') || (matrix[y][x] == 'A' && matrix[y-1][x-1] == 'S' && matrix[y+1][x+1] == 'M')) {
+        if ((matrix[y-1][x+1] == 'M' && matrix[y+1][x-1] == 'S') || (matrix[y-1][x+1] == 'S' && matrix[y+1][x-1] == 'M')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Solution04_A() {
+    std::ifstream myfile;
+    myfile.open("04/input.txt");
+
+    vector< string > matrix;
+    string line;
+
+    int64_t result = 0;
+
+    while (std::getline(myfile, line)) {
+        std::istringstream iss(line);
+        matrix.push_back(line);
+    }
+
+    for (int i=0; i<matrix.size(); i++) {
+        for (int j=0; j<matrix[i].size(); j++) {
+            if (isXMAS(matrix, j, i, Direction::HORIZONTAL)) {
+                result++;
+            }
+            if (isXMAS(matrix, j, i, Direction::VERTICAL)) {
+                result++;
+            }
+            if (isXMAS(matrix, j, i, Direction::DIAGONALX)) {
+                result++;
+            }
+            if (isXMAS(matrix, j, i, Direction::DIAGONALY)) {
+                result++;
+            }
+        }
+    }
+
+    cout << result << endl;
+}
+
+void Solution04_B() {
+    std::ifstream myfile;
+    myfile.open("04/input.txt");
+
+    vector< string > matrix;
+    string line;
+
+    int64_t result = 0;
+
+    while (std::getline(myfile, line)) {
+        std::istringstream iss(line);
+        matrix.push_back(line);
+    }
+
+    for (int i=0; i<matrix.size(); i++) {
+        for (int j=0; j<matrix[i].size(); j++) {
+            if (isMASMAS(matrix, j, i)) {
+                result++;
+            }
+        }
+    }
+
+    cout << result << endl;
+}
+
+
 int main() {
     
-    Solution02_B();
+    Solution04_B();
     return 0;
 }
