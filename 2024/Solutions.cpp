@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <regex>
 #include <string.h>
+#include <list>
+#include <tuple>
 
 using namespace std;
 
@@ -361,9 +363,141 @@ void Solution04_B() {
     cout << result << endl;
 }
 
+bool CheckSequence(vector<int>& sequence, vector< vector<int> >& matrix) {
+    for (int i = 1; i < sequence.size(); ++i) {
+        for (int j = 0; j<matrix.size(); j++) {
+            if (sequence[i-1] == matrix[j][0] && sequence[i] == matrix[j][1]) {
+                break;
+            }
+            if (sequence[i-1] == matrix[j][1] && sequence[i] == matrix[j][0]) {
+                return false;
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+void CorrectSequence(vector<int>& sequence, vector <vector<int> >& matrix) {
+    for (int i = 1; i < sequence.size(); ++i) {
+        for (int j = 0; j<matrix.size(); j++) {
+            if (sequence[i-1] == matrix[j][0] && sequence[i] == matrix[j][1]) {
+                break;
+            }
+            if (sequence[i-1] == matrix[j][1] && sequence[i] == matrix[j][0]) {
+                int temp = sequence[i];
+                sequence[i] = sequence[i-1];
+                sequence[i-1] = temp;
+                i = 0;
+                break;
+            }
+        }
+    }
+
+}
+
+void Solution05_A() {
+    std::ifstream myfile;
+    myfile.open("05/input.txt");
+
+    string line;
+    int64_t result = 0;
+
+    vector< vector<int> > matrix;
+
+    while (std::getline(myfile, line)) {
+        if (line == "") break;
+        vector<std::string> parts;
+        vector<int> pp;
+        stringstream ss(line);
+        string item;
+        while (std::getline(ss, item, '|')) {
+            parts.push_back(item);
+        }
+        pp.push_back(std::stoi(parts[0]));
+        pp.push_back(std::stoi(parts[1]));
+        matrix.push_back(pp);
+    }
+
+    while (std::getline(myfile, line)) {
+        vector<std::string> parts;
+        vector<int> sequence;
+        stringstream ss(line);
+        string item;
+        while (std::getline(ss, item, ',')) {
+            parts.push_back(item);
+        }
+        for (int i = 0; i < parts.size(); ++i) {
+            sequence.push_back(std::stoi(parts[i]));
+        }
+
+        if (CheckSequence(sequence, matrix)) {
+            result += sequence[sequence.size()/2];
+        }
+
+    }
+
+    cout << result << endl;
+}
+
+void Solution05_B() {
+    std::ifstream myfile;
+    myfile.open("05/input.txt");
+
+    string line;
+    int64_t result = 0;
+
+    vector< vector<int> > matrix;
+
+    while (std::getline(myfile, line)) {
+        if (line == "") break;
+        vector<std::string> parts;
+        vector<int> pp;
+        stringstream ss(line);
+        string item;
+        while (std::getline(ss, item, '|')) {
+            parts.push_back(item);
+        }
+        pp.push_back(std::stoi(parts[0]));
+        pp.push_back(std::stoi(parts[1]));
+
+        matrix.push_back(pp);
+    }
+
+    while (std::getline(myfile, line)) {
+        vector<std::string> parts;
+        vector<int> sequence;
+        stringstream ss(line);
+        string item;
+        while (std::getline(ss, item, ',')) {
+            parts.push_back(item);
+        }
+        for (int i = 0; i < parts.size(); ++i) {
+            sequence.push_back(std::stoi(parts[i]));
+        }
+
+        if (!CheckSequence(sequence, matrix)) {
+            for (int i = 0; i < sequence.size(); ++i) {
+                cout << sequence[i] << " ";
+            }
+            cout << endl;
+
+            CorrectSequence(sequence, matrix);
+
+            for (int i = 0; i < sequence.size(); ++i) {
+                cout << sequence[i] << " ";
+            }
+            cout << endl;
+            result += sequence[sequence.size()/2];
+            cout << result << endl;
+        }
+    }
+
+    cout << result << endl;
+}
 
 int main() {
     
-    Solution04_B();
+    Solution05_B();
     return 0;
 }
